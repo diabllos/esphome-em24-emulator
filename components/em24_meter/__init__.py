@@ -15,10 +15,14 @@ DEPENDENCIES = ["network"]
 em24_ns = cg.esphome_ns.namespace("em24_meter")
 EM24Meter = em24_ns.class_("EM24Meter", cg.Component)
 
-CONF_POWER = "power"
+CONF_POWER_L1 = "power_L1"
+CONF_POWER_L2 = "power_L2"
+CONF_POWER_L3 = "power_L3"
 CONF_IMPORT_ENERGY = "import_energy"
 CONF_EXPORT_ENERGY = "export_energy"
-CONF_VOLTAGE = "voltage"
+CONF_VOLTAGE_L1 = "voltage_L1"
+CONF_VOLTAGE_L2 = "voltage_L2"
+CONF_VOLTAGE_L3 = "voltage_L3"
 CONF_FREQUENCY = "frequency"
 CONF_PORT = "port"
 CONF_UNIT_ID = "unit_id"
@@ -35,10 +39,14 @@ PHASE_MAP = {"1P": 3, "3P.n": 0, "3P": 4}
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(EM24Meter),
-        cv.Required(CONF_POWER): cv.use_id(sensor.Sensor),
+        cv.Required(CONF_POWER_L1): cv.use_id(sensor.Sensor),
+        cv.Required(CONF_POWER_L2): cv.use_id(sensor.Sensor),
+        cv.Required(CONF_POWER_L3): cv.use_id(sensor.Sensor),
         cv.Required(CONF_IMPORT_ENERGY): cv.use_id(sensor.Sensor),
         cv.Required(CONF_EXPORT_ENERGY): cv.use_id(sensor.Sensor),
-        cv.Optional(CONF_VOLTAGE): cv.use_id(sensor.Sensor),
+        cv.Optional(CONF_VOLTAGE_L1): cv.use_id(sensor.Sensor),
+        cv.Optional(CONF_VOLTAGE_L2): cv.use_id(sensor.Sensor),
+        cv.Optional(CONF_VOLTAGE_L3): cv.use_id(sensor.Sensor),
         cv.Optional(CONF_FREQUENCY): cv.use_id(sensor.Sensor),
         cv.Optional(CONF_PORT, default=502): cv.port,
         cv.Optional(CONF_UNIT_ID, default=1): cv.int_range(min=1, max=247),
@@ -61,11 +69,17 @@ async def to_code(config):
     cg.add(var.set_serial(config[CONF_SERIAL]))
     cg.add(var.set_invert_power(config[CONF_INVERT_POWER]))
 
-    cg.add(var.set_power_sensor(await cg.get_variable(config[CONF_POWER])))
+    cg.add(var.set_power_l1_sensor(await cg.get_variable(config[CONF_POWER_L1])))
+    cg.add(var.set_power_l2_sensor(await cg.get_variable(config[CONF_POWER_L2])))
+    cg.add(var.set_power_l3_sensor(await cg.get_variable(config[CONF_POWER_L3])))
     cg.add(var.set_import_sensor(await cg.get_variable(config[CONF_IMPORT_ENERGY])))
     cg.add(var.set_export_sensor(await cg.get_variable(config[CONF_EXPORT_ENERGY])))
 
-    if CONF_VOLTAGE in config:
-        cg.add(var.set_voltage_sensor(await cg.get_variable(config[CONF_VOLTAGE])))
+    if CONF_VOLTAGE_L1 in config:
+        cg.add(var.set_voltage_l1_sensor(await cg.get_variable(config[CONF_VOLTAGE_L1])))
+    if CONF_VOLTAGE_L2 in config:
+        cg.add(var.set_voltage_l2_sensor(await cg.get_variable(config[CONF_VOLTAGE_L2])))
+    if CONF_VOLTAGE_L3 in config:
+        cg.add(var.set_voltage_l3_sensor(await cg.get_variable(config[CONF_VOLTAGE_L3])))
     if CONF_FREQUENCY in config:
         cg.add(var.set_frequency_sensor(await cg.get_variable(config[CONF_FREQUENCY])))
