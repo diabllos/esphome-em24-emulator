@@ -296,9 +296,9 @@ uint16_t EM24Meter::get_register_(uint16_t addr) {
   int32_t curr_L1_raw = scaled_(curr_L1, 1000.0f);
   int32_t curr_L2_raw = scaled_(curr_L2, 1000.0f);
   int32_t curr_L3_raw = scaled_(curr_L3, 1000.0f);
-  int32_t power_L1_raw = scaled_(p_L1, 1000.0f);
-  int32_t power_L2_raw = scaled_(p_L2, 1000.0f);
-  int32_t power_L3_raw = scaled_(p_L3, 1000.0f);
+  int32_t power_L1_raw = scaled_(p_L1, 10.0f);
+  int32_t power_L2_raw = scaled_(p_L2, 10.0f);
+  int32_t power_L3_raw = scaled_(p_L3, 10.0f);
 
 
 
