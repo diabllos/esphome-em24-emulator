@@ -69,17 +69,17 @@ async def to_code(config):
     cg.add(var.set_serial(config[CONF_SERIAL]))
     cg.add(var.set_invert_power(config[CONF_INVERT_POWER]))
 
-    cg.add(var.set_power_l1_sensor(await cg.get_variable(config[CONF_POWER_L1])))
-    cg.add(var.set_power_l2_sensor(await cg.get_variable(config[CONF_POWER_L2])))
-    cg.add(var.set_power_l3_sensor(await cg.get_variable(config[CONF_POWER_L3])))
+    cg.add(var.set_power_sensor_l1(await cg.get_variable(config[CONF_POWER_L1])))
+    cg.add(var.set_power_sensor_l2(await cg.get_variable(config[CONF_POWER_L2])))
+    cg.add(var.set_power_sensor_l3(await cg.get_variable(config[CONF_POWER_L3])))
     cg.add(var.set_import_sensor(await cg.get_variable(config[CONF_IMPORT_ENERGY])))
     cg.add(var.set_export_sensor(await cg.get_variable(config[CONF_EXPORT_ENERGY])))
 
     if CONF_VOLTAGE_L1 in config:
-        cg.add(var.set_voltage_l1_sensor(await cg.get_variable(config[CONF_VOLTAGE_L1])))
+        cg.add(var.set_voltage_sensor_l1(await cg.get_variable(config[CONF_VOLTAGE_L1])))
     if CONF_VOLTAGE_L2 in config:
-        cg.add(var.set_voltage_l2_sensor(await cg.get_variable(config[CONF_VOLTAGE_L2])))
+        cg.add(var.set_voltage_sensor_l2(await cg.get_variable(config[CONF_VOLTAGE_L2])))
     if CONF_VOLTAGE_L3 in config:
-        cg.add(var.set_voltage_l3_sensor(await cg.get_variable(config[CONF_VOLTAGE_L3])))
+        cg.add(var.set_voltage_sensor_l3(await cg.get_variable(config[CONF_VOLTAGE_L3])))
     if CONF_FREQUENCY in config:
         cg.add(var.set_frequency_sensor(await cg.get_variable(config[CONF_FREQUENCY])))
