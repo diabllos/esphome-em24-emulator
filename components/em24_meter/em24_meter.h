@@ -34,10 +34,14 @@ class EM24Meter : public Component {
   void set_serial(const std::string &s) { this->serial_ = s; }
   void set_invert_power(bool b) { this->invert_power_ = b; }
 
-  void set_power_sensor(sensor::Sensor *s) { this->power_ = s; }
+  void set_power_sensor_l1(sensor::Sensor *s) { this->power_L1 = s; }
+  void set_power_sensor_l2(sensor::Sensor *s) { this->power_L2 = s; }
+  void set_power_sensor_l3(sensor::Sensor *s) { this->power_L3 = s; }
   void set_import_sensor(sensor::Sensor *s) { this->import_ = s; }
   void set_export_sensor(sensor::Sensor *s) { this->export_ = s; }
-  void set_voltage_sensor(sensor::Sensor *s) { this->voltage_ = s; }
+  void set_voltage_sensor_l1(sensor::Sensor *s) { this->voltage_L1 = s; }
+  void set_voltage_sensor_l2(sensor::Sensor *s) { this->voltage_L2 = s; }
+  void set_voltage_sensor_l3(sensor::Sensor *s) { this->voltage_L3 = s; }
   void set_frequency_sensor(sensor::Sensor *s) { this->frequency_ = s; }
 
  protected:
@@ -55,10 +59,14 @@ class EM24Meter : public Component {
   bool invert_power_{false};
 
   // sensors
-  sensor::Sensor *power_{nullptr};
+  sensor::Sensor *power_L1{nullptr};
+  sensor::Sensor *power_L2{nullptr};
+  sensor::Sensor *power_L3{nullptr};
   sensor::Sensor *import_{nullptr};
   sensor::Sensor *export_{nullptr};
-  sensor::Sensor *voltage_{nullptr};
+  sensor::Sensor *voltage_L1{nullptr};
+  sensor::Sensor *voltage_L2{nullptr};
+  sensor::Sensor *voltage_L3{nullptr};
   sensor::Sensor *frequency_{nullptr};
 
   // writable register Victron may set during init

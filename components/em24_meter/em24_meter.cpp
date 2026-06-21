@@ -258,43 +258,83 @@ size_t EM24Meter::process_frame_(const uint8_t *req, size_t len, uint8_t *resp) 
 }
 
 uint16_t EM24Meter::get_register_(uint16_t addr) {
-  float p = (this->power_ && this->power_->has_state()) ? this->power_->state : 0.0f;
-  if (this->invert_power_)
-    p = -p;
+  float p_L1 = (this->power_L1 && this->power_L1->has_state()) ? this->power_L1->state : 0.0f;
+  float p_L2 = (this->power_L2 && this->power_L2->has_state()) ? this->power_L2->state : 0.0f;
+  float p_L3 = (this->power_L3 && this->power_L3->has_state()) ? this->power_L3->state : 0.0f;
+  if (this->invert_power_){
+    p_L1 = -p_L1;
+    p_L2 = -p_L2;
+    p_L3 = -p_L3;
+  }
+  float p = p_L1 + p_L2 + p_L3;
   float imp = (this->import_ && this->import_->has_state()) ? this->import_->state : 0.0f;
   float exp = (this->export_ && this->export_->has_state()) ? this->export_->state : 0.0f;
-  float volt = (this->voltage_ && this->voltage_->has_state()) ? this->voltage_->state : 230.0f;
+  float volt_L1 = (this->voltage_L1 && this->voltage_L1->has_state()) ? this->voltage_L1->state : 230.0f;
+  float volt_L2 = (this->voltage_L2 && this->voltage_L2->has_state()) ? this->voltage_L2->state : 230.0f;
+  float volt_L3 = (this->voltage_L3 && this->voltage_L3->has_state()) ? this->voltage_L3->state : 230.0f;
   float freq = (this->frequency_ && this->frequency_->has_state()) ? this->frequency_->state : 50.0f;
-  if (std::isnan(volt) || volt < 1.0f)
-    volt = 230.0f;
+  if (std::isnan(volt_L1) || volt_L1 < 1.0f)
+    volt_L1 = 230.0f;
+  if (std::isnan(volt_L2) || volt_L2 < 1.0f)
+    volt_L2 = 230.0f;
+  if (std::isnan(volt_L3) || volt_L3 < 1.0f)
+    volt_L3 = 230.0f;
+
   if (std::isnan(freq))
     freq = 50.0f;
   // synthesize a plausible current from power when no CT sensor is provided
-  float curr = std::isnan(p) ? 0.0f : (fabsf(p) / volt);
+  float curr_L1 = std::isnan(p_L1) ? 0.0f : (fabsf(p_L1) / volt_L1);
+  float curr_L2 = std::isnan(p_L2) ? 0.0f : (fabsf(p_L2) / volt_L2);
+  float curr_L3 = std::isnan(p_L3) ? 0.0f : (fabsf(p_L3) / volt_L3);
 
-  int32_t power_raw = scaled_(p, 10.0f);
+  int32_t power_total_raw = scaled_(p, 10.0f);
   int32_t imp_raw = scaled_(imp, 10.0f);
   int32_t exp_raw = scaled_(exp, 10.0f);
-  int32_t volt_raw = scaled_(volt, 10.0f);
-  int32_t curr_raw = scaled_(curr, 1000.0f);
+  int32_t volt_L1_raw = scaled_(volt_L1, 10.0f);
+  int32_t volt_L2_raw = scaled_(volt_L2, 10.0f);
+  int32_t volt_L3_raw = scaled_(volt_L3, 10.0f);
+  int32_t curr_L1_raw = scaled_(curr_L1, 1000.0f);
+  int32_t curr_L2_raw = scaled_(curr_L2, 1000.0f);
+  int32_t curr_L3_raw = scaled_(curr_L3, 1000.0f);
+  int32_t power_L1_raw = scaled_(p_L1, 1000.0f);
+  int32_t power_L2_raw = scaled_(p_L2, 1000.0f);
+  int32_t power_L3_raw = scaled_(p_L3, 1000.0f);
+
+
 
   switch (addr) {
     // --- probe: model id (Victron accepts 1648..1653) ---
     case 0x000B: return 1651;  // EM24DINAV53XE1X
 
     // --- L1 phase block ---
-    case 0x0000: return lo16_(volt_raw);   // V L1
-    case 0x0001: return hi16_(volt_raw);
-    case 0x000C: return lo16_(curr_raw);   // A L1
-    case 0x000D: return hi16_(curr_raw);
-    case 0x0012: return lo16_(power_raw);  // W L1
-    case 0x0013: return hi16_(power_raw);
+    case 0x0000: return lo16_(volt_L1_raw);   // V L1
+    case 0x0001: return hi16_(volt_L1_raw);
+    case 0x0002: return lo16_(volt_L2_raw);   // V L2
+    case 0x0003: return hi16_(volt_L2_raw);
+    case 0x0004: return lo16_(volt_L3_raw);   // V L3
+    case 0x0005: return hi16_(volt_L3_raw);
+
+    case 0x000C: return lo16_(curr_L1_raw);   // A L1
+    case 0x000D: return hi16_(curr_L1_raw);
+    case 0x000E: return lo16_(curr_L2_raw);   // A L2
+    case 0x000F: return hi16_(curr_L2_raw);
+    case 0x0010: return lo16_(curr_L3_raw);   // A L3
+    case 0x0011: return hi16_(curr_L3_raw);
+
+    case 0x0012: return lo16_(power_L1_raw);  // W  L1
+    case 0x0013: return hi16_(power_L1_raw);
+    case 0x0014: return lo16_(power_L2_raw);  // W  L2
+    case 0x0015: return hi16_(power_L2_raw);
+    case 0x0016: return lo16_(power_L3_raw);  // W  L3
+    case 0x0017: return hi16_(power_L3_raw);
+
     case 0x0040: return lo16_(imp_raw);    // kWh forward L1
     case 0x0041: return hi16_(imp_raw);
 
     // --- system / totals ---
-    case 0x0028: return lo16_(power_raw);  // W system  (/Ac/Power)
-    case 0x0029: return hi16_(power_raw);
+    case 0x0028: return lo16_(power_total_raw);  // W system  (/Ac/Power)
+    case 0x0029: return hi16_(power_total_raw);
+
     case 0x0032: return 0;                 // phase sequence (3-phase only)
     case 0x0033: return static_cast<uint16_t>(scaled_(freq, 10.0f));  // Hz
     case 0x0034: return lo16_(imp_raw);    // kWh forward total
